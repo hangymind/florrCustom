@@ -16,6 +16,18 @@
     const RARITY_COUNT = 9;
     
     let Module;
+    function readVarUint32(arr) {
+        let idx = 0, res = 0;
+        do res |= (arr[idx] & 0b01111111) << idx * 7;
+        while (arr[idx++] & 0b10000000);
+        return [idx, res];
+    }
+
+    async function fetchWasmBytes() {
+        const response = await fetch(`https://static.florr.io/${window.versionHash}/client.wasm`);
+        const buffer = await response.arrayBuffer();
+        return new Uint8Array(buffer);
+    }
     function getPetalsCount() {
     try {
         if (typeof betterflorr?.api?.florrio?.utils?.getPetals !== 'function') {
@@ -156,9 +168,7 @@
         }, 4000);
     }
 
-    function u32(address, offset = 0) {
-        return Module.HEAPU32[(address + offset) >> 2];
-    }
+   
 
     async function unlockAllPetals() {
         
