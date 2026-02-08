@@ -182,7 +182,7 @@
             
             for (let petal = 1; petal <= PETAL_COUNT; petal++) {
                 
-                    const offset = (petal * RARITY_COUNT + rarity) << 2;
+                    
                     Module.HEAPU32[(inventoryAddress + offset) >> 2] = 1000;
                 
             }
