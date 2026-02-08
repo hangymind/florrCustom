@@ -14,7 +14,7 @@
     const PETAL_COUNT = getPetalsCount();
     
     const RARITY_COUNT = 9;
-    let WasmVars = {};
+    
     let Module;
     function getPetalsCount() {
     try {
@@ -160,9 +160,9 @@
         return Module.HEAPU32[(address + offset) >> 2];
     }
 
-    function unlockAllPetals() {
+    async function unlockAllPetals() {
         
-        const inventoryAddress = getInventoryBaseAddress();
+        const inventoryAddress = await getInventoryBaseAddress();
 
         try {
             console.log('[TuanchMod]开始解锁所有花瓣...');
