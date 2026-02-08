@@ -1,4 +1,17 @@
-const PETAL_COUNT = getPetalsCount();
+// ==UserScript==
+// @name         Florr.io Unlock All Petals
+// @namespace    http://tampermonkey.net/
+// @version      0.1
+// @description  Unlock all petals in florr.io
+// @author       Tuanch
+// @match        https://florr.io/*
+// @grant        none
+// ==/UserScript==
+
+(function() {
+    'use strict';
+
+    const PETAL_COUNT = getPetalsCount();
     
     const RARITY_COUNT = 9;
     let WasmVars = {};
@@ -149,25 +162,18 @@ const PETAL_COUNT = getPetalsCount();
 
     function unlockAllPetals() {
         
-        console.log('当前 WasmVars:', WasmVars);
-        console.log('当前 Module:', typeof Module !== 'undefined');
-        
-        if (!WasmVars.inventoryAddress) {
-            console.log('未找到库存地址');
-            showErrorPopup('未找到库存地址，请重试。');
-            return;
-        }
+        const inventoryAddress = getInventoryBaseAddress();
 
         try {
             console.log('[TuanchMod]开始解锁所有花瓣...');
             console.log('PETAL_COUNT:', PETAL_COUNT);
             console.log('RARITY_COUNT:', RARITY_COUNT);
-            console.log('inventoryAddress:', WasmVars.inventoryAddress);
+            console.log('inventoryAddress:', inventoryAddress);
             
             for (let petal = 1; petal <= PETAL_COUNT; petal++) {
                 for (let rarity = 0; rarity < RARITY_COUNT; rarity++) {
                     const offset = (petal * RARITY_COUNT + rarity) << 2;
-                    Module.HEAPU32[(WasmVars.inventoryAddress + offset) >> 2] = 1000;
+                    Module.HEAPU32[(inventoryAddress + offset) >> 2] = 1000;
                 }
             }
             console.log('[TuanchMod]DONE!');
@@ -176,123 +182,42 @@ const PETAL_COUNT = getPetalsCount();
             console.error('解锁花瓣失败:', e);
         }
     }
-
-    function toRegex(x) {
-        return new RegExp(x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/<PARAM>/g, '(.+)').replace(/<ANY>/g, '.+'));
-    }
-
-    function find(wat, x, keys) {
-        console.log('使用模式搜索:', x);
-        const regex = toRegex(x);
-        console.log('生成的正则表达式:', regex);
-        
-        const matches = regex.exec(wat);
-        if (!matches) {
-            console.log('未找到模式');
-            return false;
-        }
-
-        console.log('找到键:', keys);
-        console.log('匹配:', matches[0]);
-        console.log('组:', matches);
-
-        for (let i = 1; i < matches.length; i++) {
-            const key = keys[i - 1];
-            let value = matches[i];
-            const n = parseFloat(value);
-            if (!isNaN(n)) value = n;
-            WasmVars[key] = value;
-            console.log('设置', key, '为', value);
-        }
-        return true;
-    }
-
-    async function editWasm(buffer) {
-        console.log('开始编辑WASM...');
-        
-        await new Promise(resolve => {
-            const script = document.createElement('script');
-            script.src = 'https://cdn.jsdelivr.net/npm/wabt@1.0.37/index.min.js';
-            script.onload = resolve;
-            document.body.appendChild(script);
-        });
-
-        console.log('WABT加载完成，解析WASM...');
-        const wabt = await WabtModule();
-        const wasm = wabt.readWasm(buffer, {});
-        wasm.generateNames();
-        wasm.applyNames();
-
-        console.log('将WASM转换为WAT...');
-        const wat = wasm.toText({});
-        console.log('WAT length:', wat.length);
-        
-        console.log('搜索库存地址...');
-        const pattern = `i32.const 8\n      i32.shr_u\n      i32.add\n      i32.const 2\n      i32.shl\n      i32.const <PARAM>`;
-        const found = find(wat, pattern, ['inventoryAddress']);
-        
-        if (!found) {
-            console.log('尝试替代模式...');
-            const altPatterns = [
-                `i32.const 8\r\ni32.shr_u\r\ni32.add\r\ni32.const 2\r\ni32.shl\r\ni32.const <PARAM>`,
-                `i32.const 8[\s\S]*?i32.shr_u[\s\S]*?i32.add[\s\S]*?i32.const 2[\s\S]*?i32.shl[\s\S]*?i32.const <PARAM>`,
-                `i32\.const 8[\s\S]*?i32\.shr_u[\s\S]*?i32\.add[\s\S]*?i32\.const 2[\s\S]*?i32\.shl[\s\S]*?i32\.const (\d+)`
-            ];
-            
-            for (const altPattern of altPatterns) {
-                if (find(wat, altPattern, ['inventoryAddress'])) {
-                    console.log('使用替代模式找到');
-                    break;
-                }
-            }
-        }
-
-        if (!WasmVars.inventoryAddress) {
-            const simpleMatch = wat.match(/i32\.const (\d+)/g);
-            if (simpleMatch) {
-                console.log('找到i32.const模式:', simpleMatch.slice(0, 5));
-                for (let i = 0; i < Math.min(5, simpleMatch.length); i++) {
-                    const value = parseInt(simpleMatch[i].match(/i32\.const (\d+)/)[1]);
-                    if (value > 0) {
-                        WasmVars.inventoryAddress = value;
-                        console.log('使用备用库存地址:', value);
-                        break;
-                    }
-                }
-            }
-        }
-
-        console.log('获取到背包基址', WasmVars.inventoryAddress);
-        
-        
-        return wabt.parseWat('x', wat).toBinary({}).buffer;
-    }
-
-    const _instantiateStreaming = WebAssembly.instantiateStreaming;
-    WebAssembly.instantiateStreaming = async function (response, imports) {
+    async function getInventoryBaseAddress() {
         try {
-            const buffer = await response.clone().arrayBuffer();
+            const arr = await fetchWasmBytes();
+            const addrs = [];
             
-            await editWasm(buffer);
-            console.log('WASM处理成功');
+            for (let i = 0; i < arr.length; i++) {
+                let j = i;
+                if (arr[j++] !== 0x41) continue; // i32.const
+                if (arr[j++] !== 1) continue;    // 1
+                if (arr[j++] !== 0x3a) continue; // i32.store8
+                if (arr[j++] !== 0) continue;    // align=0
+                if (arr[j++] !== 0) continue;    // offset=0
+                if (arr[j++] !== 0x41) continue; // i32.const
+                const [offset, addr] = readVarUint32(arr.subarray(j));
+                j += offset;
+                if (arr[j++] !== 0x41) continue; // i32.const
+                if (arr[j++] !== 5) continue;    // 5
+                if (arr[j++] !== 0x36) continue; // i32.store
+                if (arr[j++] !== 2) continue;    // align=2
+                if (arr[j++] !== 0) continue;    // offset=0
+                addrs.push(addr >> 2);
+            }
+            
+            if (addrs.length === 1) {
+                return addrs[0];
+            } else if (addrs.length === 0) {
+                throw new Error('Inventory base address not found');
+            } else {
+                console.warn('Multiple addresses found, using first:', addrs);
+                return addrs[0];
+            }
         } catch (error) {
-            console.error('WASM编辑失败:', error);
+            console.error('Failed to get inventory base address:', error);
+            throw error;
         }
-        return _instantiateStreaming(response, imports);
-    };
-
-    const _instantiate = WebAssembly.instantiate;
-    WebAssembly.instantiate = async function(buffer, imports) {
-        try {
-            console.log('处理WASM...');
-            await editWasm(buffer);
-            console.log('WASM处理成功');
-        } catch (error) {
-            console.error('WASM编辑失败:', error);
-        }
-        return _instantiate(buffer, imports);
-    };
-
+    }
     function init() {
         if (typeof window.Module !== 'undefined') {
             Module = window.Module;
@@ -335,3 +260,4 @@ const PETAL_COUNT = getPetalsCount();
     addStyles();
     init();
     registerFeatureGroup();
+})();
