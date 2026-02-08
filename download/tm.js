@@ -181,10 +181,10 @@
             console.log('inventoryAddress:', inventoryAddress);
             
             for (let petal = 1; petal <= PETAL_COUNT; petal++) {
-                for (let rarity = 0; rarity < RARITY_COUNT; rarity++) {
+                
                     const offset = (petal * RARITY_COUNT + rarity) << 2;
                     Module.HEAPU32[(inventoryAddress + offset) >> 2] = 1000;
-                }
+                
             }
             console.log('[TuanchMod]DONE!');
             showSuccessPopup();
