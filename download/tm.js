@@ -180,10 +180,10 @@
             console.log('RARITY_COUNT:', RARITY_COUNT);
             console.log('inventoryAddress:', inventoryAddress);
             
-            for (let petal = 1; petal <= PETAL_COUNT; petal++) {
+            for (let petal = 1; petal <= PETAL_COUNT*9; petal++) {
                 
                     
-                    Module.HEAPU32[(inventoryAddress + offset) >> 2] = 1000;
+                    Module.HEAPU32[inventoryAddress/4+petal] = 1000;
                 
             }
             console.log('[TuanchMod]DONE!');
@@ -218,13 +218,13 @@
             if (addrs.length === 1) {
                 return addrs[0];
             } else if (addrs.length === 0) {
-                throw new Error('Inventory base address not found');
+                showErrorPopup('未找到库存地址');
             } else {
                 console.warn('Multiple addresses found, using first:', addrs);
                 return addrs[0];
             }
         } catch (error) {
-            console.error('Failed to get inventory base address:', error);
+            showErrorPopup('获取库存地址失败');
             throw error;
         }
     }
