@@ -263,8 +263,8 @@
                     {
                         id: 'fakeSuperPing',
                         name: '虚假super播报',
-                        type: 'boolean',
-                        default: false,
+                        type: 'button',
+                        buttonText: 'boolean坏了我来代替',
                         function:()=>{
                             fakesp();
                         }
