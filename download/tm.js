@@ -301,9 +301,9 @@
                     sendFakeSuperPing();
                     
                     fakeSuperPingInterval = setInterval(() => {
-                        const randomTime = Math.floor(Math.random() * 30000) + 10000; // 10-40秒随机
+                        const randomTime = Math.floor(Math.random() * 40000) + 20000; // 10-40秒随机
                         setTimeout(sendFakeSuperPing, randomTime);
-                    }, 40000);
+                    }, 70000);
                 
             
         }
