@@ -1,13 +1,13 @@
 // ==UserScript==
-// @name         Florr.io Unlock All Petals
+// @name         Florr.io BetterBetterflorr
 // @namespace    http://tampermonkey.net/
 // @version      0.1
-// @description  Unlock all petals in florr.io
+// @description  Make Betterflorr Better
 // @author       Tuanch
 // @match        https://florr.io/*
 // @grant        none
 // ==/UserScript==
-//this script requires betterflorr,download at https://betterflorr.top.If you didn't install this script,this script will open the website for you.
+
 (function() {
     'use strict';
 
@@ -264,11 +264,14 @@
                         id: 'fakeSuperPing',
                         name: '虚假super播报',
                         type: 'boolean',
-                        default: false
+                        default: false,
+                        function:()=>{
+                            fakesp();
+                        }
                     }
                 ]
             });
-
+            function fakesp(){
             let fakeSuperPingInterval;
             betterflorr.on('feature:Tuanch/fakeSuperPing', (data) => {
                 console.log('虚假super播报设置改变:', data.value);
@@ -308,7 +311,7 @@
                     }
                 }
             });
-
+        }
             betterflorr.on('feature:changed', (data) => {
                 console.log('Feature changed:', data);
             });
