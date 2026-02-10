@@ -273,9 +273,9 @@
             });
             function fakesp(){
             let fakeSuperPingInterval;
-            betterflorr.on('feature:Tuanch/fakeSuperPing', (data) => {
-                console.log('虚假super播报设置改变:', data.value);
-                if (data.value) {
+            
+                console.log('虚假super播报设置改变');
+                
                     const mobIds = ['M28', '团子', '牢大', '大蛇',"Bed"];
                     const regions = ['AS', 'NA', 'EU',"南极洲","三体星系"];
                     const maps = ['Garden', 'Desert', 'Jungle', 'Savana','Ocean',"Bedroom"];
@@ -304,13 +304,8 @@
                         const randomTime = Math.floor(Math.random() * 30000) + 10000; // 10-40秒随机
                         setTimeout(sendFakeSuperPing, randomTime);
                     }, 40000);
-                } else {
-                    console.log('关闭虚假super播报...');
-                    if (fakeSuperPingInterval) {
-                        clearInterval(fakeSuperPingInterval);
-                    }
-                }
-            });
+                
+            
         }
             betterflorr.on('feature:changed', (data) => {
                 console.log('Feature changed:', data);
