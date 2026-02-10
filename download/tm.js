@@ -11,7 +11,7 @@
 (function() {
     'use strict';
 
-    const PETAL_COUNT = getPetalsCount();
+    const PETAL_COUNT = getPetalsCount()+9;
     
     const RARITY_COUNT = 9;
     
@@ -191,7 +191,7 @@
             console.log('RARITY_COUNT:', RARITY_COUNT);
             console.log('inventoryAddress:', inventoryAddress);
             
-            for (let petal = 0; petal < PETAL_COUNT*9; petal++) {        
+            for (let petal = 0; petal < PETAL_COUNT*10; petal++) {        
                     Module.HEAPU32[inventoryAddress+petal] = 1000;
             }
             console.log('[TuanchMod]DONE!');
