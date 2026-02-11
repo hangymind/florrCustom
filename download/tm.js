@@ -11,19 +11,43 @@
 (function() {
     'use strict';
 
-    const PETAL_COUNT = getPetalsCount()+9;
+    const PETAL_COUNT = getPetalsCount();
     
     const RARITY_COUNT = 9;
     
     let Module;
     window.addEventListener('load', checkBetterFlorr);
+    window.addEventListener('load', grapBfSettings);
     //require BetterFlorr
+    function grapBfSettings(){
+        try {
+            const betterflorrUserSettings = betterflorr.api.get.settings();
+            console.log('获取到BetterFlorr设置:', betterflorrUserSettings);
+            
+            const jsonString = JSON.stringify(betterflorrUserSettings, null, 2);
+            const blob = new Blob([jsonString], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `betterflorr-settings-${new Date().toISOString().slice(0, 10)}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            console.log('BetterFlorr设置已保存并下载');
+            showSuccessPopup('设置已保存并下载');
+        } catch (error) {
+            console.error('保存BetterFlorr设置失败:', error);
+            showErrorPopup('保存设置失败');
+        }
+    }
      function checkBetterFlorr() {
         if (location.hostname === 'betterflorr.top') return;
         
         if (typeof window.BetterFlorr === 'undefined' && typeof window.betterFlorr === 'undefined') {
-            if (confirm('本插件为BetterFlorr的额外附属，您没有安装betterflorr，是否前往安装？')) {
-                location.href = 'https://betterflorr.top/';
+            if (confirm('免责声明：任何插件都不会对您的账号安全负责，是否前往查看Florr.io账户协议')) {
+                location.href = 'https://florr.io/tos.txt';
             }
         }
     }
@@ -191,7 +215,7 @@
             console.log('RARITY_COUNT:', RARITY_COUNT);
             console.log('inventoryAddress:', inventoryAddress);
             
-            for (let petal = 0; petal < PETAL_COUNT*10; petal++) {        
+            for (let petal = 0; petal < PETAL_COUNT*9; petal++) {        
                     Module.HEAPU32[inventoryAddress+petal] = 1000;
             }
             console.log('[TuanchMod]DONE!');
@@ -268,14 +292,23 @@
                         function:()=>{
                             fakesp();
                         }
+                    },
+                    {
+                        id:'saveSettings',
+                        name:'保存bf设置',
+                        type:'button',
+                        buttonText:'保存',
+                        function:()=>{
+                            grapBfSettings();
+                        }
                     }
                 ]
             });
             function fakesp(){
             let fakeSuperPingInterval;
-            
-                console.log('虚假super播报设置改变');
-                
+            betterflorr.on('feature:Tuanch/fakeSuperPing', (data) => {
+                console.log('虚假super播报设置改变:', data.value);
+                if (data.value) {
                     const mobIds = ['M28', '团子', '牢大', '大蛇',"Bed"];
                     const regions = ['AS', 'NA', 'EU',"南极洲","三体星系"];
                     const maps = ['Garden', 'Desert', 'Jungle', 'Savana','Ocean',"Bedroom"];
@@ -301,11 +334,16 @@
                     sendFakeSuperPing();
                     
                     fakeSuperPingInterval = setInterval(() => {
-                        const randomTime = Math.floor(Math.random() * 40000) + 20000; // 10-40秒随机
+                        const randomTime = Math.floor(Math.random() * 30000) + 10000; // 10-40秒随机
                         setTimeout(sendFakeSuperPing, randomTime);
-                    }, 70000);
-                
-            
+                    }, 40000);
+                } else {
+                    console.log('关闭虚假super播报...');
+                    if (fakeSuperPingInterval) {
+                        clearInterval(fakeSuperPingInterval);
+                    }
+                }
+            });
         }
             betterflorr.on('feature:changed', (data) => {
                 console.log('Feature changed:', data);
