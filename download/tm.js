@@ -33,7 +33,7 @@
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
-            
+            alert('有关导入设置：目前bf开发者没有提供导入功能，您可以手动导入设置');
             console.log('BetterFlorr设置已保存并下载');
             showSuccessPopup('设置已保存并下载');
         } catch (error) {
@@ -299,6 +299,27 @@
                         buttonText:'保存',
                         function:()=>{
                             grapBfSettings();
+                        }
+                    },
+                    {
+                        id:'changePageZoom',
+                        name:'更改sp页面缩放',
+                        type:'button',
+                        buttonText:'更改缩放',
+                        function:()=>{
+                            const zoom = prompt('请输入页面缩放百分比（例如：150 表示 150%）：');
+                            if (zoom) {
+                                const zoomValue = parseFloat(zoom);
+                                if (!isNaN(zoomValue) && zoomValue > 0) {
+                                    document.body.style.transform = `scale(${zoomValue / 100})`;
+                                    document.body.style.transformOrigin = 'top left';
+                                    document.body.style.width = `${100 / (zoomValue / 100)}%`;
+                                    document.body.style.height = `${100 / (zoomValue / 100)}%`;
+                                    showSuccessPopup(`页面已缩放到 ${zoomValue}%`);
+                                } else {
+                                    showErrorPopup('请输入有效的数字');
+                                }
+                            }
                         }
                     }
                 ]
