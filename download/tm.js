@@ -17,7 +17,6 @@
     
     let Module;
     window.addEventListener('load', checkBetterFlorr);
-    window.addEventListener('load', grapBfSettings);
     //require BetterFlorr
     function grapBfSettings(){
         try {
