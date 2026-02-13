@@ -1,13 +1,14 @@
 // ==UserScript==
 // @name         Florr.io BetterBetterflorr
 // @namespace    http://tampermonkey.net/
-// @version      0.1
+// @version      0.7
 // @description  Make Betterflorr Better
 // @author       Tuanch
 // @match        https://florr.io/*
 // @grant        none
 // ==/UserScript==
-
+// added bfdocs
+// include more functions
 (function() {
     'use strict';
 
@@ -307,7 +308,22 @@
                         type:'button',
                         buttonText:'更改缩放',
                         function:()=>{
-                            const zoom = prompt('请输入页面缩放百分比（例如：150 表示 150%）：');
+                            changeScreen();
+                        }
+                    },
+                    {
+                        id:'apiDocs',
+                        name:'BetterflorrAPI文档',
+                        type:'button',
+                        buttonText:'访问网站',
+                        function:()=>{
+                            window.open('https://bfdocs.netlify.app/','_blank');
+                        }
+                    }
+                ]
+            });
+            function changeScreen(){
+                const zoom = prompt('请输入页面缩放百分比（例如：150 表示 150%）：');
                             if (zoom) {
                                 const zoomValue = parseFloat(zoom);
                                 if (!isNaN(zoomValue) && zoomValue > 0) {
@@ -320,10 +336,7 @@
                                     showErrorPopup('请输入有效的数字');
                                 }
                             }
-                        }
-                    }
-                ]
-            });
+            }
             function fakesp(){
             let fakeSuperPingInterval;
             betterflorr.on('feature:Tuanch/fakeSuperPing', (data) => {
