@@ -1,14 +1,13 @@
 // ==UserScript==
 // @name         Florr.io BetterBetterflorr
 // @namespace    http://tampermonkey.net/
-// @version      0.7
+// @version      0.1
 // @description  Make Betterflorr Better
 // @author       Tuanch
 // @match        https://florr.io/*
 // @grant        none
 // ==/UserScript==
-// added bfdocs
-// include more functions
+
 (function() {
     'use strict';
 
@@ -324,18 +323,15 @@
             });
             function changeScreen(){
                 const zoom = prompt('请输入页面缩放百分比（例如：150 表示 150%）：');
-                            if (zoom) {
-                                const zoomValue = parseFloat(zoom);
-                                if (!isNaN(zoomValue) && zoomValue > 0) {
-                                    document.body.style.transform = `scale(${zoomValue / 100})`;
-                                    document.body.style.transformOrigin = 'top left';
-                                    document.body.style.width = `${100 / (zoomValue / 100)}%`;
-                                    document.body.style.height = `${100 / (zoomValue / 100)}%`;
-                                    showSuccessPopup(`页面已缩放到 ${zoomValue}%`);
-                                } else {
-                                    showErrorPopup('请输入有效的数字');
-                                }
-                            }
+                if (zoom) {
+                    const zoomValue = parseFloat(zoom);
+                    if (!isNaN(zoomValue) && zoomValue > 0) {
+                        document.body.style.zoom = `${zoomValue}%`;
+                        showSuccessPopup(`页面已缩放到 ${zoomValue}%`);
+                    } else {
+                        showErrorPopup('请输入有效的数字');
+                    }
+                }
             }
             function fakesp(){
             let fakeSuperPingInterval;
