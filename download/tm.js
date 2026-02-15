@@ -602,7 +602,6 @@
             const newTop = (element.offsetTop - pos2);
             const newLeft = (element.offsetLeft - pos1);
             
-            // Keep panel within window bounds
             const maxTop = window.innerHeight - element.offsetHeight;
             const maxLeft = window.innerWidth - element.offsetWidth;
             
@@ -726,6 +725,7 @@
                 betterflorr.on('mapchange', () => {
                     if (autoChangeSongOnMapChange) {
                         playNextMusic();
+                        showSuccessPopup('是时候切歌了!');
                     }
                 });
             }
