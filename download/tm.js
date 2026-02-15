@@ -227,6 +227,85 @@
             .music-progress {
                 width: 100%;
                 margin-bottom: 10px;
+                -webkit-appearance: none;
+                appearance: none;
+                height: 8px;
+                border-radius: 4px;
+                background: rgba(255,255,255,0.2);
+                outline: none;
+            }
+            .music-progress::-webkit-slider-thumb {
+                -webkit-appearance: none;
+                appearance: none;
+                width: 16px;
+                height: 16px;
+                border-radius: 50%;
+                background: #2ECC71;
+                cursor: pointer;
+                transition: background 0.3s;
+            }
+            .music-progress::-webkit-slider-thumb:hover {
+                background: #27AE60;
+            }
+            .music-progress::-moz-range-thumb {
+                width: 16px;
+                height: 16px;
+                border-radius: 50%;
+                background: #2ECC71;
+                cursor: pointer;
+                border: none;
+                transition: background 0.3s;
+            }
+            .music-progress::-moz-range-thumb:hover {
+                background: #27AE60;
+            }
+            #music-volume {
+                -webkit-appearance: none;
+                appearance: none;
+                height: 6px;
+                border-radius: 3px;
+                background: rgba(255,255,255,0.2);
+                outline: none;
+            }
+            #music-volume::-webkit-slider-thumb {
+                -webkit-appearance: none;
+                appearance: none;
+                width: 14px;
+                height: 14px;
+                border-radius: 50%;
+                background: #2ECC71;
+                cursor: pointer;
+                transition: background 0.3s;
+            }
+            #music-volume::-webkit-slider-thumb:hover {
+                background: #27AE60;
+            }
+            #music-volume::-moz-range-thumb {
+                width: 14px;
+                height: 14px;
+                border-radius: 50%;
+                background: #2ECC71;
+                cursor: pointer;
+                border: none;
+                transition: background 0.3s;
+            }
+            #music-volume::-moz-range-thumb:hover {
+                background: #27AE60;
+            }
+            .music-list::-webkit-scrollbar {
+                width: 6px;
+            }
+            .music-list::-webkit-scrollbar-track {
+                background: rgba(255,255,255,0.1);
+                border-radius: 3px;
+            }
+            .music-list::-webkit-scrollbar-thumb {
+                background: rgba(255,255,255,0.3);
+                border-radius: 3px;
+                transition: background 0.3s;
+            }
+            .music-list::-webkit-scrollbar-thumb:hover {
+                background: rgba(255,255,255,0.5);
             }
             .music-info {
                 font-size: 12px;
