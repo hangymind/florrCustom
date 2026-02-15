@@ -7,7 +7,7 @@
 // @match        https://florr.io/*
 // @grant        none
 // ==/UserScript==
-
+//fix showSuccessPopup
 (function() {
     'use strict';
 
