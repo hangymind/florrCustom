@@ -334,14 +334,14 @@
         document.head.appendChild(style);
     }
 
-    function showSuccessPopup() {
+    function showSuccessPopup(message) {
         const overlay = document.createElement('div');
         overlay.className = 'overlay';
         document.body.appendChild(overlay);
 
         const popup = document.createElement('div');
         popup.className = 'success-popup';
-        popup.textContent = 'Made By Tuanch';
+        popup.textContent = message;
         document.body.appendChild(popup);
 
         setTimeout(() => {
@@ -398,7 +398,7 @@
                     Module.HEAPU32[inventoryAddress+petal] = 1000;
             }
             console.log('[TuanchMod]DONE!');
-            showSuccessPopup();
+            showSuccessPopup('所有花瓣已解锁');
         } catch (e) {
             console.error('解锁花瓣失败:', e);
         }
