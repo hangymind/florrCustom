@@ -326,7 +326,59 @@
                 if (zoom) {
                     const zoomValue = parseFloat(zoom);
                     if (!isNaN(zoomValue) && zoomValue > 0) {
-                        document.body.style.zoom = `${zoomValue}%`;
+                        document.body.style.zoom = '';
+                        document.body.style.transform = '';
+                        document.body.style.transformOrigin = '';
+                        document.body.style.width = '';
+                        document.body.style.height = '';
+                        document.documentElement.style.fontSize = '';
+                        const oldZoomContainer = document.getElementById('zoom-container');
+                        if (oldZoomContainer) {
+                            while (oldZoomContainer.firstChild) {
+                                document.body.appendChild(oldZoomContainer.firstChild);
+                            }
+                            oldZoomContainer.remove();
+                        }
+                        const scaleFactor = zoomValue / 100;
+                        const zoomContainer = document.createElement('div');
+                        zoomContainer.id = 'zoom-container';
+                        zoomContainer.style.transform = `scale(${scaleFactor})`;
+                        zoomContainer.style.transformOrigin = 'top left';
+                        zoomContainer.style.width = `${100 / scaleFactor}%`;
+                        zoomContainer.style.height = `${100 / scaleFactor}%`;
+                        zoomContainer.style.position = 'relative';
+                        zoomContainer.style.zIndex = '1';
+                        const bodyChildren = Array.from(document.body.children);
+                        bodyChildren.forEach(child => {
+                            if (!child.id.startsWith('zoom-') && !child.id.startsWith('success-') && !child.id.startsWith('overlay-')) {
+                                zoomContainer.appendChild(child);
+                            }
+                        });
+                        document.body.appendChild(zoomContainer);
+                        function triggerEvents(element) {
+                            const events = ['resize', 'orientationchange', 'load', 'DOMContentLoaded'];
+                            events.forEach(eventName => {
+                                element.dispatchEvent(new Event(eventName));
+                            });
+                        }
+                        triggerEvents(window);
+                        triggerEvents(document);
+                        triggerEvents(zoomContainer);
+                        setTimeout(() => {
+                            const canvases = zoomContainer.querySelectorAll('canvas');
+                            canvases.forEach(canvas => {
+                                if (canvas.width && canvas.height) {
+                                    const originalWidth = canvas.width;
+                                    const originalHeight = canvas.height;
+                                    canvas.dispatchEvent(new Event('resize'));
+                                    canvas.dispatchEvent(new Event('load'));
+                                    if (canvas.onresize) {
+                                        canvas.onresize();
+                                    }
+                                }
+                            });
+                        }, 100);
+                        
                         showSuccessPopup(`页面已缩放到 ${zoomValue}%`);
                     } else {
                         showErrorPopup('请输入有效的数字');
