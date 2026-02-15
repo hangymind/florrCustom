@@ -272,16 +272,16 @@
         if ('Notification' in window) {
             Notification.requestPermission().then(permission => {
                 if (permission === 'granted') {
-                    console.log('通知权限已授予');
+                    
                     showSuccessPopup('通知权限已授予');
                     setupSuperPingNotification();
                 } else {
-                    console.log('通知权限被拒绝');
+                    
                     showErrorPopup('通知权限被拒绝，请在浏览器设置中允许通知');
                 }
             });
         } else {
-            console.log('浏览器不支持通知');
+            
             showErrorPopup('浏览器不支持通知');
         }
     }
@@ -289,12 +289,11 @@
     function setupSuperPingNotification() {
         if (typeof window.betterflorr !== 'undefined') {
             betterflorr.on('superping', (data) => {
-                console.log('检测到新的superping:', data);
                 
                 if ('Notification' in window && Notification.permission === 'granted') {
-                    const title = '新的SuperPing';
+                    const title = 'Super Spawned!';
                     const options = {
-                        body: `怪物: ${data.mob_id}\n区域: ${data.region}\n地图: ${data.locations?.[0]?.map || '未知'}`,
+                        body: `mob: ${data.mob_id}\nserver: ${data.region}\nmap: ${data.locations?.[0]?.map || '未知'}`,
                         icon: 'https://florr.io/favicon.ico',
                         badge: 'https://florr.io/favicon.ico',
                         silent: false
@@ -302,9 +301,9 @@
                     
                     try {
                         new Notification(title, options);
-                        console.log('通知已发送');
+                        
                     } catch (error) {
-                        console.error('发送通知失败:', error);
+                        showErrorPopup(error);
                     }
                 }
             });
@@ -355,9 +354,9 @@
                     },
                     {
                         id:'superPingNotification',
-                        name:'SuperPing通知',
+                        name:'SuperPing通知模式',
                         type:'button',
-                        buttonText:'开启通知',
+                        buttonText:'boolean坏了我来代替',
                         function:()=>{
                             requestNotificationPermission();
                         }
