@@ -150,6 +150,73 @@
             .overlay.show {
                 right: 0;
             }
+            .music-control-panel {
+                position: fixed;
+                bottom: 70px;
+                right: 10px;
+                background-color: rgba(0,0,0,0.8);
+                color: white;
+                padding: 15px;
+                border-radius: 8px;
+                z-index: 9998;
+                font-family: 'Ubuntu-Bold', Arial, sans-serif;
+                box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+                min-width: 250px;
+            }
+            .music-control-panel.hidden {
+                display: none;
+            }
+            .music-control-panel h3 {
+                margin-top: 0;
+                margin-bottom: 10px;
+                font-size: 16px;
+                text-align: center;
+            }
+            .music-control-buttons {
+                display: flex;
+                justify-content: space-around;
+                margin-bottom: 10px;
+            }
+            .music-control-button {
+                background-color: #4CAF50;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                padding: 8px 12px;
+                cursor: pointer;
+                font-size: 14px;
+                font-weight: bold;
+                transition: background-color 0.3s;
+            }
+            .music-control-button:hover {
+                background-color: #45a049;
+            }
+            .music-list {
+                max-height: 200px;
+                overflow-y: auto;
+                margin-bottom: 10px;
+            }
+            .music-item {
+                padding: 5px;
+                border-bottom: 1px solid rgba(255,255,255,0.2);
+                cursor: pointer;
+                transition: background-color 0.2s;
+            }
+            .music-item:hover {
+                background-color: rgba(255,255,255,0.1);
+            }
+            .music-item.active {
+                background-color: rgba(76, 175, 80, 0.3);
+            }
+            .music-progress {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+            .music-info {
+                font-size: 12px;
+                text-align: center;
+                margin-bottom: 10px;
+            }
         `;
         document.head.appendChild(style);
     }
@@ -310,11 +377,190 @@
         }
     }
 
+    // Music-related variables and functions
+    let musicFiles = [];
+    let currentMusicIndex = -1;
+    let audioElement = null;
+    let musicControlPanel = null;
+    let autoChangeSongOnMapChange = false;
+
+    function importLocalMusic() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'audio/*';
+        input.multiple = true;
+        input.onchange = (e) => {
+            const files = Array.from(e.target.files);
+            if (files.length > 0) {
+                musicFiles = [...musicFiles, ...files];
+                showSuccessPopup(`成功导入 ${files.length} 首音乐`);
+                updateMusicList();
+            }
+        };
+        input.click();
+    }
+
+    function toggleMusicControlPanel() {
+        if (!musicControlPanel) {
+            createMusicControlPanel();
+        } else {
+            musicControlPanel.classList.toggle('hidden');
+        }
+    }
+
+    function createMusicControlPanel() {
+        musicControlPanel = document.createElement('div');
+        musicControlPanel.className = 'music-control-panel';
+        
+        musicControlPanel.innerHTML = `
+            <h3>音乐控制面板</h3>
+            <div class="music-info" id="music-info">未播放音乐</div>
+            <input type="range" class="music-progress" id="music-progress" min="0" max="100" value="0">
+            <div class="music-control-buttons">
+                <button class="music-control-button" id="prev-button">上一首</button>
+                <button class="music-control-button" id="play-pause-button">播放</button>
+                <button class="music-control-button" id="next-button">下一首</button>
+            </div>
+            <div class="music-list" id="music-list">
+                ${musicFiles.map((file, index) => `
+                    <div class="music-item ${index === currentMusicIndex ? 'active' : ''}" data-index="${index}">
+                        ${file.name}
+                    </div>
+                `).join('')}
+            </div>
+        `;
+        
+        document.body.appendChild(musicControlPanel);
+        
+        // Add event listeners
+        document.getElementById('prev-button').addEventListener('click', playPreviousMusic);
+        document.getElementById('play-pause-button').addEventListener('click', togglePlayPause);
+        document.getElementById('next-button').addEventListener('click', playNextMusic);
+        document.getElementById('music-progress').addEventListener('input', seekMusic);
+        
+        const musicList = document.getElementById('music-list');
+        if (musicList) {
+            musicList.addEventListener('click', (e) => {
+                const musicItem = e.target.closest('.music-item');
+                if (musicItem) {
+                    const index = parseInt(musicItem.dataset.index);
+                    playMusic(index);
+                }
+            });
+        }
+    }
+
+    function updateMusicList() {
+        if (musicControlPanel) {
+            const musicList = document.getElementById('music-list');
+            if (musicList) {
+                musicList.innerHTML = musicFiles.map((file, index) => `
+                    <div class="music-item ${index === currentMusicIndex ? 'active' : ''}" data-index="${index}">
+                        ${file.name}
+                    </div>
+                `).join('');
+            }
+        }
+    }
+
+    function playMusic(index) {
+        if (index < 0 || index >= musicFiles.length) return;
+        
+        currentMusicIndex = index;
+        
+        if (audioElement) {
+            audioElement.pause();
+            audioElement.src = '';
+        }
+        
+        audioElement = new Audio(URL.createObjectURL(musicFiles[index]));
+        audioElement.play();
+        
+        updateMusicInfo();
+        updateMusicList();
+        
+        audioElement.addEventListener('timeupdate', updateMusicProgress);
+        audioElement.addEventListener('ended', playNextMusic);
+    }
+
+    function togglePlayPause() {
+        if (!audioElement) return;
+        
+        if (audioElement.paused) {
+            audioElement.play();
+            document.getElementById('play-pause-button').textContent = '暂停';
+        } else {
+            audioElement.pause();
+            document.getElementById('play-pause-button').textContent = '播放';
+        }
+    }
+
+    function playPreviousMusic() {
+        if (musicFiles.length === 0) return;
+        
+        currentMusicIndex = (currentMusicIndex - 1 + musicFiles.length) % musicFiles.length;
+        playMusic(currentMusicIndex);
+    }
+
+    function playNextMusic() {
+        if (musicFiles.length === 0) return;
+        
+        currentMusicIndex = (currentMusicIndex + 1) % musicFiles.length;
+        playMusic(currentMusicIndex);
+    }
+
+    function updateMusicInfo() {
+        if (currentMusicIndex >= 0 && currentMusicIndex < musicFiles.length) {
+            const musicInfo = document.getElementById('music-info');
+            if (musicInfo) {
+                musicInfo.textContent = `当前播放: ${musicFiles[currentMusicIndex].name}`;
+            }
+        }
+    }
+
+    function updateMusicProgress() {
+        if (!audioElement) return;
+        
+        const progress = document.getElementById('music-progress');
+        if (progress) {
+            const value = (audioElement.currentTime / audioElement.duration) * 100;
+            progress.value = value;
+        }
+    }
+
+    function seekMusic() {
+        if (!audioElement) return;
+        
+        const progress = document.getElementById('music-progress');
+        if (progress) {
+            const value = parseFloat(progress.value);
+            audioElement.currentTime = (value / 100) * audioElement.duration;
+        }
+    }
+
+    function toggleAutoChangeSongOnMapChange() {
+        autoChangeSongOnMapChange = !autoChangeSongOnMapChange;
+        
+        if (autoChangeSongOnMapChange) {
+            showSuccessPopup('地图切换自动切歌已开启');
+            
+            if (typeof window.betterflorr !== 'undefined') {
+                betterflorr.on('mapchange', () => {
+                    if (autoChangeSongOnMapChange) {
+                        playNextMusic();
+                    }
+                });
+            }
+        } else {
+            showSuccessPopup('地图切换自动切歌已关闭');
+        }
+    }
+
     function registerFeatureGroup() {
         if (typeof window.betterflorr !== 'undefined') {
             betterflorr.registerFeatureGroup('settings', {
                 id: 'Tuanch',
-                title: 'Tuanch',
+                title: '团子的实用功能',
                 settings: [
                     {
                         id: 'unlockPetals',
@@ -368,6 +614,39 @@
                         buttonText:'访问网站',
                         function:()=>{
                             window.open('https://bfdocs.netlify.app/','_blank');
+                        }
+                    }
+                ]
+            });
+            betterflorr.registerFeatureGroup('settings', {
+                id: 'imusic',
+                title: '团子的imusic',
+                settings: [
+                    {
+                        id: 'importMusic',
+                        name: '导入本地音乐',
+                        type: 'button',
+                        buttonText: '导入音乐',
+                        function:()=>{
+                            importLocalMusic();
+                        }
+                    },
+                    {
+                        id: 'musicControl',
+                        name: '音乐控制面板',
+                        type: 'button',
+                        buttonText: '打开面板',
+                        function:()=>{
+                            toggleMusicControlPanel();
+                        }
+                    },
+                    {
+                        id: 'autoChangeSongOnMapChange',
+                        name: '地图切换自动切歌',
+                        type: 'button',
+                        buttonText: 'boolean坏了我来代替',
+                        function:()=>{
+                            toggleAutoChangeSongOnMapChange();
                         }
                     }
                 ]
