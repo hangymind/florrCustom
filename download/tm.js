@@ -268,6 +268,49 @@
         }
     }
 
+    function requestNotificationPermission() {
+        if ('Notification' in window) {
+            Notification.requestPermission().then(permission => {
+                if (permission === 'granted') {
+                    console.log('通知权限已授予');
+                    showSuccessPopup('通知权限已授予');
+                    setupSuperPingNotification();
+                } else {
+                    console.log('通知权限被拒绝');
+                    showErrorPopup('通知权限被拒绝，请在浏览器设置中允许通知');
+                }
+            });
+        } else {
+            console.log('浏览器不支持通知');
+            showErrorPopup('浏览器不支持通知');
+        }
+    }
+
+    function setupSuperPingNotification() {
+        if (typeof window.betterflorr !== 'undefined') {
+            betterflorr.on('superping', (data) => {
+                console.log('检测到新的superping:', data);
+                
+                if ('Notification' in window && Notification.permission === 'granted') {
+                    const title = '新的SuperPing';
+                    const options = {
+                        body: `怪物: ${data.mob_id}\n区域: ${data.region}\n地图: ${data.locations?.[0]?.map || '未知'}`,
+                        icon: 'https://florr.io/favicon.ico',
+                        badge: 'https://florr.io/favicon.ico',
+                        silent: false
+                    };
+                    
+                    try {
+                        new Notification(title, options);
+                        console.log('通知已发送');
+                    } catch (error) {
+                        console.error('发送通知失败:', error);
+                    }
+                }
+            });
+        }
+    }
+
     function registerFeatureGroup() {
         if (typeof window.betterflorr !== 'undefined') {
             betterflorr.registerFeatureGroup('settings', {
@@ -303,11 +346,20 @@
                     },
                     {
                         id:'changePageZoom',
-                        name:'更改sp页面缩放',
+                        name:'更改sp页面缩放(实验)',
                         type:'button',
                         buttonText:'更改缩放',
                         function:()=>{
                             changeScreen();
+                        }
+                    },
+                    {
+                        id:'superPingNotification',
+                        name:'SuperPing通知',
+                        type:'button',
+                        buttonText:'开启通知',
+                        function:()=>{
+                            requestNotificationPermission();
                         }
                     },
                     {
@@ -323,67 +375,18 @@
             });
             function changeScreen(){
                 const zoom = prompt('请输入页面缩放百分比（例如：150 表示 150%）：');
-                if (zoom) {
-                    const zoomValue = parseFloat(zoom);
-                    if (!isNaN(zoomValue) && zoomValue > 0) {
-                        document.body.style.zoom = '';
-                        document.body.style.transform = '';
-                        document.body.style.transformOrigin = '';
-                        document.body.style.width = '';
-                        document.body.style.height = '';
-                        document.documentElement.style.fontSize = '';
-                        const oldZoomContainer = document.getElementById('zoom-container');
-                        if (oldZoomContainer) {
-                            while (oldZoomContainer.firstChild) {
-                                document.body.appendChild(oldZoomContainer.firstChild);
-                            }
-                            oldZoomContainer.remove();
-                        }
-                        const scaleFactor = zoomValue / 100;
-                        const zoomContainer = document.createElement('div');
-                        zoomContainer.id = 'zoom-container';
-                        zoomContainer.style.transform = `scale(${scaleFactor})`;
-                        zoomContainer.style.transformOrigin = 'top left';
-                        zoomContainer.style.width = `${100 / scaleFactor}%`;
-                        zoomContainer.style.height = `${100 / scaleFactor}%`;
-                        zoomContainer.style.position = 'relative';
-                        zoomContainer.style.zIndex = '1';
-                        const bodyChildren = Array.from(document.body.children);
-                        bodyChildren.forEach(child => {
-                            if (!child.id.startsWith('zoom-') && !child.id.startsWith('success-') && !child.id.startsWith('overlay-')) {
-                                zoomContainer.appendChild(child);
-                            }
-                        });
-                        document.body.appendChild(zoomContainer);
-                        function triggerEvents(element) {
-                            const events = ['resize', 'orientationchange', 'load', 'DOMContentLoaded'];
-                            events.forEach(eventName => {
-                                element.dispatchEvent(new Event(eventName));
-                            });
-                        }
-                        triggerEvents(window);
-                        triggerEvents(document);
-                        triggerEvents(zoomContainer);
-                        setTimeout(() => {
-                            const canvases = zoomContainer.querySelectorAll('canvas');
-                            canvases.forEach(canvas => {
-                                if (canvas.width && canvas.height) {
-                                    const originalWidth = canvas.width;
-                                    const originalHeight = canvas.height;
-                                    canvas.dispatchEvent(new Event('resize'));
-                                    canvas.dispatchEvent(new Event('load'));
-                                    if (canvas.onresize) {
-                                        canvas.onresize();
-                                    }
+                            if (zoom) {
+                                const zoomValue = parseFloat(zoom);
+                                if (!isNaN(zoomValue) && zoomValue > 0) {
+                                    document.body.style.transform = `scale(${zoomValue / 100})`;
+                                    document.body.style.transformOrigin = 'top left';
+                                    document.body.style.width = `${100 / (zoomValue / 100)}%`;
+                                    document.body.style.height = `${100 / (zoomValue / 100)}%`;
+                                    showSuccessPopup(`页面已缩放到 ${zoomValue}%`);
+                                } else {
+                                    showErrorPopup('请输入有效的数字');
                                 }
-                            });
-                        }, 100);
-                        
-                        showSuccessPopup(`页面已缩放到 ${zoomValue}%`);
-                    } else {
-                        showErrorPopup('请输入有效的数字');
-                    }
-                }
+                            }
             }
             function fakesp(){
             let fakeSuperPingInterval;
