@@ -641,7 +641,7 @@
         if (typeof window.betterflorr !== 'undefined') {
             betterflorr.registerFeatureGroup('settings', {
                 id: 'Tuanch',
-                title: '团子的实用功能',
+                title: 'TMod',
                 settings: [
                     {
                         id: 'unlockPetals',
@@ -701,7 +701,7 @@
             });
             betterflorr.registerFeatureGroup('settings', {
                 id: 'imusic',
-                title: '团子的imusic',
+                title: '音乐相关',
                 settings: [
                     {
                         id: 'importMusic',
