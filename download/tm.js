@@ -178,7 +178,7 @@
                 margin-bottom: 10px;
             }
             .music-control-button {
-                background-color: #4CAF50;
+                background-color: #2ECC71;
                 color: white;
                 border: none;
                 border-radius: 5px;
@@ -189,7 +189,23 @@
                 transition: background-color 0.3s;
             }
             .music-control-button:hover {
-                background-color: #45a049;
+                background-color: #27AE60;
+            }
+            .music-control-panel {
+                cursor: move;
+                user-select: none;
+            }
+            .music-volume-control {
+                margin-top: 10px;
+                display: flex;
+                align-items: center;
+            }
+            .music-volume-control label {
+                margin-right: 10px;
+                font-size: 14px;
+            }
+            .music-volume-control input {
+                flex: 1;
             }
             .music-list {
                 max-height: 200px;
@@ -421,6 +437,10 @@
                 <button class="music-control-button" id="play-pause-button">播放</button>
                 <button class="music-control-button" id="next-button">下一首</button>
             </div>
+            <div class="music-volume-control">
+                <label for="music-volume">音量:</label>
+                <input type="range" id="music-volume" min="0" max="1" step="0.1" value="0.7">
+            </div>
             <div class="music-list" id="music-list">
                 ${musicFiles.map((file, index) => `
                     <div class="music-item ${index === currentMusicIndex ? 'active' : ''}" data-index="${index}">
@@ -437,6 +457,7 @@
         document.getElementById('play-pause-button').addEventListener('click', togglePlayPause);
         document.getElementById('next-button').addEventListener('click', playNextMusic);
         document.getElementById('music-progress').addEventListener('input', seekMusic);
+        document.getElementById('music-volume').addEventListener('input', adjustVolume);
         
         const musicList = document.getElementById('music-list');
         if (musicList) {
@@ -447,6 +468,66 @@
                     playMusic(index);
                 }
             });
+        }
+        
+        // Make panel draggable
+        makeDraggable(musicControlPanel);
+    }
+
+    function makeDraggable(element) {
+        let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+        
+        const header = element.querySelector('h3');
+        if (header) {
+            header.style.cursor = 'move';
+            header.onmousedown = dragMouseDown;
+        } else {
+            element.onmousedown = dragMouseDown;
+        }
+        
+        function dragMouseDown(e) {
+            e = e || window.event;
+            e.preventDefault();
+            pos3 = e.clientX;
+            pos4 = e.clientY;
+            document.onmouseup = closeDragElement;
+            document.onmousemove = elementDrag;
+        }
+        
+        function elementDrag(e) {
+            e = e || window.event;
+            e.preventDefault();
+            pos1 = pos3 - e.clientX;
+            pos2 = pos4 - e.clientY;
+            pos3 = e.clientX;
+            pos4 = e.clientY;
+            
+            const newTop = (element.offsetTop - pos2);
+            const newLeft = (element.offsetLeft - pos1);
+            
+            // Keep panel within window bounds
+            const maxTop = window.innerHeight - element.offsetHeight;
+            const maxLeft = window.innerWidth - element.offsetWidth;
+            
+            element.style.top = Math.max(0, Math.min(newTop, maxTop)) + 'px';
+            element.style.left = Math.max(0, Math.min(newLeft, maxLeft)) + 'px';
+            element.style.bottom = 'auto';
+            element.style.right = 'auto';
+        }
+        
+        function closeDragElement() {
+            document.onmouseup = null;
+            document.onmousemove = null;
+        }
+    }
+
+    function adjustVolume() {
+        if (!audioElement) return;
+        
+        const volumeControl = document.getElementById('music-volume');
+        if (volumeControl) {
+            const volume = parseFloat(volumeControl.value);
+            audioElement.volume = volume;
         }
     }
 
