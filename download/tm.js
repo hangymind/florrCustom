@@ -229,10 +229,11 @@
                 margin-bottom: 10px;
                 -webkit-appearance: none;
                 appearance: none;
-                height: 8px;
-                border-radius: 4px;
-                background: rgba(255,255,255,0.2);
+                height: 6px;
+                border-radius: 3px;
+                background: rgba(255,255,255,0.1);
                 outline: none;
+                box-shadow: inset 0 1px 3px rgba(0,0,0,0.3);
             }
             .music-progress::-webkit-slider-thumb {
                 -webkit-appearance: none;
@@ -242,10 +243,13 @@
                 border-radius: 50%;
                 background: #2ECC71;
                 cursor: pointer;
-                transition: background 0.3s;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+                transition: all 0.3s ease;
             }
             .music-progress::-webkit-slider-thumb:hover {
                 background: #27AE60;
+                transform: scale(1.1);
+                box-shadow: 0 3px 8px rgba(0,0,0,0.4);
             }
             .music-progress::-moz-range-thumb {
                 width: 16px;
@@ -254,18 +258,22 @@
                 background: #2ECC71;
                 cursor: pointer;
                 border: none;
-                transition: background 0.3s;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+                transition: all 0.3s ease;
             }
             .music-progress::-moz-range-thumb:hover {
                 background: #27AE60;
+                transform: scale(1.1);
+                box-shadow: 0 3px 8px rgba(0,0,0,0.4);
             }
             #music-volume {
                 -webkit-appearance: none;
                 appearance: none;
-                height: 6px;
+                height: 5px;
                 border-radius: 3px;
-                background: rgba(255,255,255,0.2);
+                background: rgba(255,255,255,0.1);
                 outline: none;
+                box-shadow: inset 0 1px 3px rgba(0,0,0,0.3);
             }
             #music-volume::-webkit-slider-thumb {
                 -webkit-appearance: none;
@@ -275,10 +283,13 @@
                 border-radius: 50%;
                 background: #2ECC71;
                 cursor: pointer;
-                transition: background 0.3s;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+                transition: all 0.3s ease;
             }
             #music-volume::-webkit-slider-thumb:hover {
                 background: #27AE60;
+                transform: scale(1.1);
+                box-shadow: 0 3px 6px rgba(0,0,0,0.4);
             }
             #music-volume::-moz-range-thumb {
                 width: 14px;
@@ -287,25 +298,32 @@
                 background: #2ECC71;
                 cursor: pointer;
                 border: none;
-                transition: background 0.3s;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+                transition: all 0.3s ease;
             }
             #music-volume::-moz-range-thumb:hover {
                 background: #27AE60;
+                transform: scale(1.1);
+                box-shadow: 0 3px 6px rgba(0,0,0,0.4);
             }
             .music-list::-webkit-scrollbar {
-                width: 6px;
+                width: 4px;
             }
             .music-list::-webkit-scrollbar-track {
-                background: rgba(255,255,255,0.1);
-                border-radius: 3px;
+                background: rgba(255,255,255,0.05);
+                border-radius: 2px;
             }
             .music-list::-webkit-scrollbar-thumb {
-                background: rgba(255,255,255,0.3);
-                border-radius: 3px;
-                transition: background 0.3s;
+                background: rgba(46, 204, 113, 0.4);
+                border-radius: 2px;
+                transition: all 0.3s ease;
             }
             .music-list::-webkit-scrollbar-thumb:hover {
-                background: rgba(255,255,255,0.5);
+                background: rgba(46, 204, 113, 0.6);
+            }
+            .music-list {
+                scrollbar-width: thin;
+                scrollbar-color: rgba(46, 204, 113, 0.4) rgba(255,255,255,0.05);
             }
             .music-info {
                 font-size: 12px;
