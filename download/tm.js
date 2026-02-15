@@ -526,8 +526,8 @@
         musicControlPanel.className = 'music-control-panel';
         
         musicControlPanel.innerHTML = `
-            <h3>音乐控制面板</h3>
-            <div class="music-info" id="music-info">未播放音乐</div>
+            <h3>Tuanch's Music</h3>
+            <div class="music-info" id="music-info">no music</div>
             <input type="range" class="music-progress" id="music-progress" min="0" max="100" value="0">
             <div class="music-control-buttons">
                 <button class="music-control-button" id="prev-button">上一首</button>
